@@ -19,16 +19,26 @@ class UserSeeder extends Seeder
         $admin = User::firstOrCreate([
             'email'     => 'admin@example.com'
         ], [
-            'name'      => 'Admin User',
+            'name'      => 'Admin',
             'password'  => bcrypt('password'),
             'role_id'   => $adminRole->id
         ]);
         $admin->assignRole($adminRole);
 
         $user = User::firstOrCreate([
-            'email'     => 'user@example.com'
+            'email'     => 'user1@example.com'
         ], [
-            'name'      => 'Regular User',
+            'name'      => 'Regular User1',
+            'password'  => bcrypt('password'),
+            'role_id'   => $userRole->id
+        ]);
+        $user->assignRole($userRole);
+
+        
+        $user = User::firstOrCreate([
+            'email'     => 'user2@example.com'
+        ], [
+            'name'      => 'Regular User2',
             'password'  => bcrypt('password'),
             'role_id'   => $userRole->id
         ]);
