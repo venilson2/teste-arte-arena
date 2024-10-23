@@ -4,9 +4,10 @@ namespace Modules\Account\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Modules\Account\App\Models\Account;
 use Illuminate\Support\Facades\Auth;
+use Modules\Account\App\Http\Requests\StoreAccountRequest;
+use Modules\Account\App\Http\Requests\UpdateAccountRequest;
 
 class AccountApiController extends Controller
 {
@@ -23,48 +24,34 @@ class AccountApiController extends Controller
         return response()->json($accounts);
     }
 
-    public function show($id): JsonResponse
+    public function store(StoreAccountRequest $request): JsonResponse
     {
-        $account = Account::find($id);
-        if (!$account) {
-            return response()->json(['message' => 'Account not found'], 404);
-        }
-        return response()->json($account);
+        $user = Auth::user();
+    
+        $data = $request->validated();
+    
+        $data['user_id'] = $user->id;
+    
+        $account = Account::create($data);
+    
+        return response()->json($account, 201);
     }
 
-    public function store(Request $request): JsonResponse
+    public function update(UpdateAccountRequest $request, $id): JsonResponse
     {
 
         $user = Auth::user();
 
-        $data = $request->validate([
-            'title'         => 'required|string|max:255',
-            'description'   => 'nullable|string',
-            'value'         => 'required|numeric',
-            'due_date'      => 'required|date',
-            'status'        => 'required|in:paid,pending',
-            'user_id'       => $user->id
-        ]);
-
-        $account = Account::create($data);
-
-        return response()->json($account, 201);
-    }
-
-    public function update(Request $request, $id): JsonResponse
-    {
         $account = Account::find($id);
         if (!$account) {
             return response()->json(['message' => 'Account not found'], 404);
         }
 
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'value' => 'required|numeric',
-            'due_date' => 'required|date',
-            'status' => 'required|in:paid,pending',
-        ]);
+        if ($account->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $data = $request->validated();
 
         $account->update($data);
 
@@ -73,13 +60,18 @@ class AccountApiController extends Controller
 
     public function destroy($id): JsonResponse
     {
+        $user = Auth::user();
+    
         $account = Account::find($id);
         if (!$account) {
             return response()->json(['message' => 'Account not found'], 404);
         }
-
+    
+        if ($account->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+    
         $account->delete();
-
-        return response()->json(['message' => 'Account deleted']);
+        return response()->json(null, 204);
     }
 }
