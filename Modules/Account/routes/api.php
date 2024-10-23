@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Modules\Account\App\Http\Controllers\AccountApiController;
 
 /*
     |--------------------------------------------------------------------------
@@ -14,6 +15,10 @@ use Illuminate\Support\Facades\Route;
     |
 */
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->name('api.')->group(function () {
-    Route::get('account', fn (Request $request) => $request->user())->name('account');
+Route::middleware(['api'])->name('api.')->group(function () {
+    Route::get('accounts', [AccountApiController::class, 'index'])->name('accounts.index');
+    Route::get('accounts/{id}', [AccountApiController::class, 'show'])->name('accounts.show');
+    Route::post('accounts', [AccountApiController::class, 'store'])->name('accounts.store');
+    Route::put('accounts/{id}', [AccountApiController::class, 'update'])->name('accounts.update');
+    Route::delete('accounts/{id}', [AccountApiController::class, 'destroy'])->name('accounts.destroy');
 });
