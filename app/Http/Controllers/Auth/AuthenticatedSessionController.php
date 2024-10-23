@@ -7,28 +7,25 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Firebase\JWT\JWT;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthenticatedSessionController extends Controller
 {
 
     public function store(LoginRequest $request): JsonResponse
     {
-        $request->authenticate();
-        $user = Auth::user();
+        // Extrai as credenciais do request (email e senha)
+        $credentials = $request->only('email', 'password');
 
-        $key = env('JWT_SECRET');
-        $payload = [
-            'iat' => time(),
-            'exp' => time() + 60 * 60,
-            'sub' => $user->id,
-        ];
+        // Tenta autenticar o usuário e gerar um token JWT
+        if (!$token = JWTAuth::attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
-        $jwt = JWT::encode($payload, $key, 'HS256');
-
+        // Retorna o token JWT e o usuário autenticado
         return response()->json([
-            'token' => $jwt,
-            'user' => $user
+            'token' => $token,
+            'user' => auth()->user()
         ]);
     }
 
