@@ -1,66 +1,179 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Documentação do Projeto Laravel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este é um projeto Laravel que implementa um sistema de contas com autenticação via JWT. Abaixo estão as instruções para rodar o projeto e utilizar as rotas disponíveis.
 
-## About Laravel
+## Pré-requisitos
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP >= 7.4
+- Composer
+- MySQL
+- Node.js e NPM (opcional, para frontend)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Instalação
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. Clone o repositório:
 
-## Learning Laravel
+   ```bash
+   git clone <url-do-repositorio>
+   cd <nome-do-repositorio>
+   ```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+2. Instale as dependências do PHP:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+   ```bash
+   composer install
+   ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. Crie um arquivo `.env` a partir do arquivo `.env.example`:
 
-## Laravel Sponsors
+   ```bash
+   cp .env.example .env
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+4. Configure as credenciais do banco de dados no arquivo `.env`:
 
-### Premium Partners
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=<nome-do-banco>
+   DB_USERNAME=<usuario-do-banco>
+   DB_PASSWORD=<senha-do-banco>
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+5. Gere a chave de aplicativo:
 
-## Contributing
+   ```bash
+   php artisan key:generate
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+6. Execute as migrations para criar as tabelas no banco de dados:
 
-## Code of Conduct
+   ```bash
+   php artisan migrate
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+7. (Opcional) Se você estiver utilizando o frontend com Node.js, instale as dependências do frontend:
 
-## Security Vulnerabilities
+   ```bash
+   npm install
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+8. (Opcional) Execute o servidor de desenvolvimento do frontend:
 
-## License
+   ```bash
+   npm run dev
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Rodando o servidor
+
+Para rodar o servidor Laravel, execute o seguinte comando:
+
+```bash
+php artisan serve
+```
+
+O servidor estará disponível em `http://localhost:8000`.
+
+## Rotas
+
+### Login
+
+**POST** `http://localhost:8000/api/login`
+
+**Request:**
+
+```json
+{
+  "email": "user1@example.com",
+  "password": "password"
+}
+```
+
+**Response:**
+
+```json
+{
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "token_type": "bearer",
+    "user": {
+        "id": 2,
+        "name": "Regular User1",
+        "email": "user1@example.com",
+        "email_verified_at": null,
+        "created_at": "2024-10-23T19:33:01.000000Z",
+        "updated_at": "2024-10-23T19:33:01.000000Z",
+        "role_id": 2
+    },
+    "expires_in": 3600
+}
+```
+
+### Listar Contas
+
+**GET** `http://localhost:8000/api/accounts`
+
+**Headers:**
+
+```
+Authorization: Bearer <token>
+```
+
+**Response:**
+
+```json
+[
+    {
+        "id": 1,
+        "title": "Conta de Luz",
+        "description": "Pagamento da conta de luz referente ao mês de outubro.",
+        "value": "150.00",
+        "due_date": "2024-10-30",
+        "status": "pending",
+        "user_id": 2,
+        "created_at": "2024-10-23T19:33:01.000000Z",
+        "updated_at": "2024-10-23T19:33:01.000000Z",
+        "deleted_at": null
+    }
+]
+```
+
+### Criar Conta
+
+**POST** `http://localhost:8000/api/accounts`
+
+**Request:**
+
+```json
+{
+    "title": "teste1",
+    "description": "teste1",
+    "value": 10.0,
+    "due_date": "2024-05-01",
+    "status": "paid"
+}
+```
+
+### Atualizar Conta
+
+**PUT** `http://localhost:8000/api/accounts/1`
+
+**Request:**
+
+```json
+{
+    "title": "teste_atualizado",
+    "description": "teste_atualizado",
+    "value": 10.0,
+    "due_date": "2024-05-01",
+    "status": "paid"
+}
+```
+
+### Deletar Conta
+
+**DELETE** `http://localhost:8000/api/accounts/1`
+
+**Response:**
+
+Status 204 No Content
