@@ -7,20 +7,29 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Firebase\JWT\JWT;
 
 class AuthenticatedSessionController extends Controller
 {
 
     public function store(LoginRequest $request): JsonResponse
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Invalid credentials.'], 401);
-        }
-
+        $request->authenticate();
         $user = Auth::user();
-        $token = $user->createToken('API Token')->plainTextToken;
 
-        return response()->json(['token' => $token]);
+        $key = env('JWT_SECRET');
+        $payload = [
+            'iat' => time(),
+            'exp' => time() + 60 * 60,
+            'sub' => $user->id,
+        ];
+
+        $jwt = JWT::encode($payload, $key, 'HS256');
+
+        return response()->json([
+            'token' => $jwt,
+            'user' => $user
+        ]);
     }
 
     public function destroy(Request $request): JsonResponse
