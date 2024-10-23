@@ -5,11 +5,12 @@ namespace Modules\Account\App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
-use Modules\Account\Database\factories\AccountFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends Model
 {
     use HasFactory;
+    use SoftDeletes; 
 
     /**
      * The attributes that are mass assignable.
@@ -27,9 +28,4 @@ class Account extends Model
     {
         return $this->belongsTo(User::class);
     }
-    
-    // protected static function newFactory(): AccountFactory
-    // {
-    //     //return AccountFactory::new();
-    // }
 }
