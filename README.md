@@ -50,7 +50,7 @@ Este é um projeto Laravel que implementa um sistema de contas com autenticaçã
 6. Execute as migrations para criar as tabelas no banco de dados:
 
    ```bash
-   php artisan migrate
+   php artisan migrate:refresh --seed
    ```
 
 7. (Opcional) Se você estiver utilizando o frontend com Node.js, instale as dependências do frontend:
@@ -64,6 +64,52 @@ Este é um projeto Laravel que implementa um sistema de contas com autenticaçã
    ```bash
    npm run dev
    ```
+
+## Rodando o servidor com Docker
+
+Para rodar o projeto Laravel utilizando Docker, siga as instruções abaixo:
+
+1. Certifique-se de que o Docker e o Docker Compose estão instalados em seu sistema.
+
+2. Crie um arquivo `docker-compose.yml` na raiz do projeto com a seguinte configuração:
+
+   ```yaml
+   version: '3.8'
+
+    services:
+      app:
+        build:
+          context: .
+          dockerfile: docker/Dockerfile.dev
+        container_name: laravel-app
+        command: bash -c "php artisan serve --host=0.0.0.0 --port=8000"
+        ports:
+          - "8000:8000"
+        volumes:
+          - .:/usr/src/app
+        network_mode: host
+
+3. Execute o Docker Compose para iniciar os containers:
+
+```bash
+docker-compose up -d
+```
+
+4. Para acessar o shell do container Laravel, use o seguinte comando:
+
+```bash
+docker exec -it laravel-app /bin/bash
+```
+
+5. Execute as migrations para criar as tabelas no banco de dados:
+
+```bash
+php artisan migrate:refresh --seed
+```
+
+
+
+
 
 ## Rodando o servidor
 
