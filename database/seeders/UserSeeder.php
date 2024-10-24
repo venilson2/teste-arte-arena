@@ -21,7 +21,6 @@ class UserSeeder extends Seeder
         ], [
             'name'      => 'Admin',
             'password'  => bcrypt('password'),
-            'role_id'   => $adminRole->id
         ]);
         $admin->assignRole($adminRole);
 
@@ -30,7 +29,6 @@ class UserSeeder extends Seeder
         ], [
             'name'      => 'Regular User1',
             'password'  => bcrypt('password'),
-            'role_id'   => $userRole->id
         ]);
         $user->assignRole($userRole);
 
@@ -40,7 +38,6 @@ class UserSeeder extends Seeder
         ], [
             'name'      => 'Regular User2',
             'password'  => bcrypt('password'),
-            'role_id'   => $userRole->id
         ]);
         $user->assignRole($userRole);
     }
