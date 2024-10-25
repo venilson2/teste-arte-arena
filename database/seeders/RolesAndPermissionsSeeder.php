@@ -22,12 +22,12 @@ class RolesAndPermissionsSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'api']);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
 
-        $adminRole = Role::create(['name' => 'admin', 'guard_name' => 'api']);
-        $userRole = Role::create(['name' => 'user', 'guard_name' => 'api']);
+        $adminRole = Role::create(['name' => 'admin', 'guard_name' => 'web']);
+        $userRole = Role::create(['name' => 'user', 'guard_name' => 'web']);
 
         $adminRole->givePermissionTo($permissions);
         $userRole->givePermissionTo(['create accounts', 'view accounts', 'edit accounts']);

@@ -4,34 +4,50 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\JsonResponse;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AuthenticatedSessionController extends Controller
 {
-
-    public function store(LoginRequest $request): JsonResponse
+    /**
+     * Display the login view.
+     */
+    public function create(): Response
     {
-        $credentials = $request->only('email', 'password');
-
-        if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
-        return response()->json([
-            'token' => $token,
-            'token_type' => 'bearer',
-            'user' => auth()->user(),
-            'expires_in' => auth()->factory()->getTTL() * 60
+        return Inertia::render('Auth/Login', [
+            'canResetPassword' => Route::has('password.request'),
+            'status' => session('status'),
         ]);
     }
 
-    public function destroy(Request $request): JsonResponse
+    /**
+     * Handle an incoming authentication request.
+     */
+    public function store(LoginRequest $request): RedirectResponse
     {
-        // Remove o token atual
-        $request->user()->currentAccessToken()->delete();
+        $request->authenticate();
 
-        return response()->json(['message' => 'Logged out successfully.']);
+        $request->session()->regenerate();
+
+        return redirect()->intended(RouteServiceProvider::HOME);
+    }
+
+    /**
+     * Destroy an authenticated session.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 }
