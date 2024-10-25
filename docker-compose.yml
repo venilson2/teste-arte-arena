@@ -1,52 +1,57 @@
-version: '3.8'
-
 services:
-  app:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.dev
-    container_name: laravel-app
-    command: >
-      bash -c "
-        php artisan migrate:refresh --seed && 
-        php artisan serve --host=0.0.0.0 --port=8000
-      "
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/usr/src/app
-    depends_on:
-      - postgres
-    networks:
-      - laravelnet
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'          # Limita a 1.5 núcleos de CPU
-          memory: '1G'        # Limita a 512MB de memória RAM
+    laravel.test:
+        build:
+            context: ./vendor/laravel/sail/runtimes/8.3
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: sail-8.3/app
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '${APP_PORT:-80}:80'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - pgsql
 
-  postgres:
-    image: postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    container_name: postgres_db
-    environment:
-      POSTGRES_PASSWORD: "root"
-      POSTGRES_USER: "root"
-      POSTGRES_DB: "laravel"
-    ports:
-      - "5432:5432"
-    networks:
-      - laravelnet
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'          # Limita a 1 núcleo de CPU
-          memory: '1G'          # Limita a 1GB de memória RAM
-
+    pgsql:
+        image: 'postgres:17'
+        ports:
+            - '${FORWARD_DB_PORT:-5432}:5432'
+        environment:
+            PGPASSWORD: '${DB_PASSWORD:-secret}'
+            POSTGRES_DB: '${DB_DATABASE}'
+            POSTGRES_USER: '${DB_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+        volumes:
+            - 'sail-pgsql:/var/lib/postgresql/data'
+            - './vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD
+                - pg_isready
+                - '-q'
+                - '-d'
+                - '${DB_DATABASE}'
+                - '-U'
+                - '${DB_USERNAME}'
+            retries: 3
+            timeout: 5s
 networks:
-  laravelnet:
-    driver: bridge
-
+    sail:
+        driver: bridge
 volumes:
-  postgres_data:
+    sail-pgsql:
+        driver: local

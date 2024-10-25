@@ -74,7 +74,8 @@ Para rodar o projeto Laravel utilizando Docker, siga as instruções abaixo:
 2. Execute o Docker Compose para iniciar os containers:
 
 ```bash
-docker-compose up -d
+    ./vendor/bin/sail build --no-cache  
+    ./vendor/bin/sail artisan migrate:refresh --seed  
 ```
 
 ### Ambiente Pronto
